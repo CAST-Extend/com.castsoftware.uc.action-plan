@@ -8,9 +8,6 @@ The script is used to automate the sorting for the Action Plan violations on the
     * Source Code (zip)
     * com.castsoftware.uc.action-plan
     * Unpack the Source Code zip file (arg)
-
-* Add the rules.xlsx file into your Action Plan Generation Tool folder
-
   
 ## Usage
 The script is designed to run on the command line using 3 parameters, --application, --rules and --output. Used to identify the application, the excel rules file path and the output excel application path.
