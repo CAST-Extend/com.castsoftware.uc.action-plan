@@ -65,56 +65,28 @@ def fetch_data(conn,cur, DatabaseName):
 
 
 
-#Function That display the dataframe exported from the database
-# def export_data(rules, output):
-         
-#     #read the results in the excel template sheet which contains all the violation rules 
-#     df_template = pd.read_excel(rules)#call it rules after 
-#     #output = pd.read_csv(fileName) # excel which contains the 
-
-#     priorities = ['Fix Now', 'Near Term', 'Mid Term', 'Long Term'] 
-#     severity = [0,1,2,3]#tableau entiers
-#     tag = ['Extreme', 'High', 'Moderate', 'Low']
-    
-#     for p,s,t in zip(priorities,severity,tag):
-#         fn = df_template[df_template['Final Priority'] == p]
-#         ids = fn["metric_id"].values.tolist()
-#         ids2 = str(ids).replace('[','(').replace(']',')')
-#         fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
-#         fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
-#         sql = f"insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag) select distinct dmr.metric_id, object_id, dmv.snapshot_date, timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}' from dss_snapshots dmv, dss_metric_results dmr where dmv.snapshot_id = dmr.snapshot_id and metric_id in {ids2}"
-#         cur.execute(sql)
-#         conn.commit()
-
-
+# Function That display the dataframe exported from the database
 def export_data(rules, output):
          
     #read the results in the excel template sheet which contains all the violation rules 
     df_template = pd.read_excel(rules)#call it rules after 
+    #output = pd.read_csv(fileName) # excel which contains the 
 
-    # priorityLT = df_template['Final Priority'].tolist()
-    keep =['Keep']
-    for k in keep:
-        priorityLT = df_template[df_template['Keep'] == 'yes']
-    # print(len(priorityLT)) #1332
-   
-
-    priorities = ['Fix Now', 'Near Term', 'Mid Term','Long Term'] 
-    # severity = [0,1,2]#tableau entiers
-    # tag = ['Extreme', 'High', 'Moderate']
-    # prioritiesLT = ['Fix Now', 'Near Term', 'Mid Term', 'Long Term'] 
+    priorities = ['Fix Now', 'Near Term', 'Mid Term', 'Long Term'] 
     severity = [0,1,2,3]#tableau entiers
     tag = ['Extreme', 'High', 'Moderate', 'Low']
     
     for p,s,t in zip(priorities,severity,tag):
-        fn = priorityLT[priorityLT['Final Priority'] == p]
+        fn = df_template[df_template['Final Priority'] == p]
         ids = fn["metric_id"].values.tolist()
         ids2 = str(ids).replace('[','(').replace(']',')')
-        fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames','Keep'])
+        fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
         fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
         sql = f"insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag) select distinct dmr.metric_id, object_id, dmv.snapshot_date, timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}' from dss_snapshots dmv, dss_metric_results dmr where dmv.snapshot_id = dmr.snapshot_id and metric_id in {ids2}"
         cur.execute(sql)
         conn.commit()
+
+
 
 
 #main function to call all the other functions
