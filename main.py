@@ -14,11 +14,11 @@ fileName = 'ActionPlan_export.csv'
 
 
 # function to connect to the database.
-def connect(): 
+def connect(Hostname, PortNumber): 
     # connecting to the database called test
     # using the connect function
     try:
-        conn=psycopg2.connect(database="postgres", user="operator", password="CastAIP", host="sha-dd-css2", port="5432")
+        conn=psycopg2.connect(database="postgres", user="operator", password="CastAIP", host=f'{Hostname}', port=f'{PortNumber}')
   
         # creating the cursor object
         cur = conn.cursor()
@@ -93,12 +93,14 @@ def export_data(rules, output):
 if __name__ == '__main__':
 
         parser = argparse.ArgumentParser(description='SQLite DB handler')
+        parser.add_argument('-ho', '--host', required=True, help='Database host name')
+        parser.add_argument('-p', '--port', required=True, help='Database port number')
         parser.add_argument('-a', '--application', required=True, help='schema triplet name')
         parser.add_argument('-r', '--rules', required=True, help='Rules name, including path')
         parser.add_argument('-o', '--output', required=True, help='')
         args = parser.parse_args()
 
-        conn, cur = connect()
+        conn, cur = connect(args.host, args.port)
         
         fetch_data(conn,cur, args.application)
         export_data(args.rules, args.output)
