@@ -78,11 +78,12 @@ def export_data(rules, output):
     
     for p,s,t in zip(priorities,severity,tag):
         fn = df_template[df_template['Final Priority'] == p]
+        ids = fn['metric_id']+1
         ids = fn["metric_id"].values.tolist()
         ids2 = str(ids).replace('[','(').replace(']',')')
         fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
         fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
-        sql = f"insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag) select distinct dmr.metric_id, object_id, dmv.snapshot_date, timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}' from dss_snapshots dmv, dss_metric_results dmr where dmv.snapshot_id = dmr.snapshot_id and metric_id in {ids2}"
+        sql = f"insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag) select distinct dmr.metric_id, object_id, dmv.snapshot_date, timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}' from dss_snapshots dmv, dss_metric_results dmr where dmv.snapshot_id = (select max(snapshot_id) from dss_snapshots) and metric_id in {ids2}"
         cur.execute(sql)
         conn.commit()
 
