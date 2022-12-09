@@ -3,11 +3,14 @@ from typing import final
 import psycopg2
 import csv
 import pandas as pd
+# from pandas.core.common import SettingWithCopyWarning
 import numpy as np
 import argparse
 from sqlite3 import Error, connect
 import psycopg2.extras as extras
 import pg8000
+import warnings
+# from pandas import SettingWithCopyWarning
 
 # File path and name.
 fileName = 'ActionPlan_export.csv'
@@ -67,7 +70,8 @@ def fetch_data(conn,cur, DatabaseName):
 
 # Function That display the dataframe exported from the database
 def export_data(rules, output):
-         
+    # warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)    
+    # pd.options.mode.chained_assignment = None
     #read the results in the excel template sheet which contains all the violation rules 
     df_template = pd.read_excel(rules)#call it rules after 
     #output = pd.read_csv(fileName) # excel which contains the 
@@ -77,13 +81,17 @@ def export_data(rules, output):
     tag = ['Extreme', 'High', 'Moderate', 'Low']
     
     for p,s,t in zip(priorities,severity,tag):
+        pd.set_option('mode.chained_assignment', None)
         fn = df_template[df_template['Final Priority'] == p]
-        ids = fn['metric_id']+1
-        ids = fn["metric_id"].values.tolist()
+        fn['adj_metric_id'] = fn['metric_id']+1
+        ids = fn['adj_metric_id'].values.tolist()
+        #ids = fn["metric_id"].values.tolist()
         ids2 = str(ids).replace('[','(').replace(']',')')
         fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
         fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
-        sql = f"insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag) select distinct dmr.metric_id, object_id, dmv.snapshot_date, timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}' from dss_snapshots dmv, dss_metric_results dmr where dmv.snapshot_id = (select max(snapshot_id) from dss_snapshots) and metric_id in {ids2}"
+        sql = "insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag)"+\
+            f"select distinct dmr.metric_id-1, object_id, (SELECT Max(functional_date) FROM dss_snapshots), timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}'"+\
+            f"from dss_snapshots dmv, dss_metric_results dmr where dmr.snapshot_id = (select max(snapshot_id) from dss_snapshots) and metric_id in {ids2}"
         cur.execute(sql)
         conn.commit()
 
