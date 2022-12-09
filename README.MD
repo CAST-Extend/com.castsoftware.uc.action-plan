@@ -19,7 +19,7 @@ The script is designed to run on the command line using 5 parameters, --applicat
 
 ## General Configuration
 The general configuration section contains three parts, 
-* host - Database host name
+* Name - Database host name
 * port - Database port number 
 * application - application name
 * rules - the absolute location of the excel rules template
