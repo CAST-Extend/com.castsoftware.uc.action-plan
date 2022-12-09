@@ -102,7 +102,7 @@ def export_data(rules, output):
 if __name__ == '__main__':
 
         parser = argparse.ArgumentParser(description='SQLite DB handler')
-        parser.add_argument('-ho', '--host', required=True, help='Database host name')
+        parser.add_argument('-n', '--name', required=True, help='Database host name')
         parser.add_argument('-p', '--port', required=True, help='Database port number')
         parser.add_argument('-a', '--application', required=True, help='schema triplet name')
         parser.add_argument('-r', '--rules', required=True, help='Rules name, including path')
