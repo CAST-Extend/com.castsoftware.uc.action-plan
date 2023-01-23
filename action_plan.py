@@ -5,6 +5,7 @@ from config import Config
 from psycopg2 import connect
 from logger import Logger
 from logger import INFO
+from os.path import exists,abspath
 
 
 #class that allows the connexion to the database
@@ -13,8 +14,12 @@ class ActionPlan():
     def __init__(self, config, log_level=INFO):
         self.logger = Logger(self.__class__.__name__, log_level)
         self._open_database(config)
-        self.file_name = './rules.xlsx'
-       
+        #TODO add rules file location to configuration file
+        self.file_name = abspath('./rules.xlsx')
+
+        if not exists(self.file_name):
+            raise RuntimeError(f'{self.file_name} not found')
+
 
     def _open_database (self, config):
         try:
@@ -22,8 +27,8 @@ class ActionPlan():
             self._connection = conn
             self._session = conn.cursor()
             self.logger.debug("Connected to the database")
-        except psycopg2.Error as e:
-            self.logger.error("Error %d: %s" % (e.args[0],e.args[1]))
+        except psycopg2.OperationalError as err : 
+            self.logger.error("Database connection error", err)
 
     def close(self):
         self._session.close()
@@ -33,7 +38,8 @@ class ActionPlan():
     def fetch_data(self, app_name):
 
         self.logger.info("Retriving existing action items")
-        db_full_name=f'{app_name}_central'
+        db_full_name=f'{app_name}_central'.replace("-","_")
+        
         
         query_path = f'set search_path={db_full_name}'
         query = "select distinct dmv.metric_id, dmv.snapshot_id, dmv.functional_date, dmr.object_id from dss_metric_values dmv, dss_metric_results dmr where dmv.metric_id = dmr.metric_id order by dmv.metric_id asc"
@@ -59,10 +65,10 @@ class ActionPlan():
         for p,s,t in zip(priorities,severity,tag):
             pd.set_option('mode.chained_assignment', None)
             fn = self.df[self.df['Final Priority'] == p]
-            fn['adj_metric_id'] = fn['metric_id']+1
+            fn['adj_metric_id'] = fn['ID']+1
             ids = fn['adj_metric_id'].values.tolist()
             ids2 = str(ids).replace('[','(').replace(']',')')
-            fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
+            fn1 =fn.drop(columns=['Name', 'HREF', 'Business Criteria','Technical Criteria', 'Critical', 'Severity', 'TechnologyNames'])
             fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
             sql = "insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag)"+\
                 f"select distinct dmr.metric_id-1, object_id, (SELECT Max(functional_date) FROM dss_snapshots), timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}'"+\
@@ -71,11 +77,6 @@ class ActionPlan():
             self._session.execute(sql)
             self._connection.commit()
         self.logger.info("Done")
-           
-
-            
-
-
 
     def run(self, app_name):
         self.fetch_data(app_name)
