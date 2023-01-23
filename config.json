@@ -1,0 +1,14 @@
+{
+  "project":"Utina",
+  "template":"C:/Action_Plan_Code/Action_Plan/rules.xlsx",
+    
+  "Configuration":{
+      "Database":{
+          "database": "postgres",
+          "user": "operator",
+          "password": "CastAIP",
+          "host": "sha-dd-css2",
+          "port": "5432"
+		  }
+    }
+}
