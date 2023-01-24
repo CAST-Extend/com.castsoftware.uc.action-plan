@@ -23,7 +23,6 @@ class ActionPlan():
         else:
             raise RuntimeError("Database connection error")
 
-
     def _open_database (self, config) -> bool:
         try:
             conn = connect(database=config.database, user=config.user, password=config.password, host=config.host, port=config.port)
@@ -44,7 +43,6 @@ class ActionPlan():
 
         self.logger.info("Retriving existing action items")
         db_full_name=f'{app_name}_central'.replace("-","_")
-       
         query_path = f'set search_path={db_full_name}'
         query = "select distinct dmv.metric_id, dmv.snapshot_id, dmv.functional_date, dmr.object_id from dss_metric_values dmv, dss_metric_results dmr where dmv.metric_id = dmr.metric_id order by dmv.metric_id asc"
         self._session.execute(query_path,query)
@@ -70,7 +68,7 @@ class ActionPlan():
 
             pd.set_option('mode.chained_assignment', None)
             fn = self.df[self.df['Final Priority'] == p]
-            fn['adj_metric_id'] = fn['metric_id']+1
+            fn['adj_metric_id'] = fn['ID']+1
             ids = fn['adj_metric_id'].values.tolist()
             ids2 = str(ids).replace('[','(').replace(']',')')
             fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
