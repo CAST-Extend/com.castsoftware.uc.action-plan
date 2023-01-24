@@ -1,0 +1,14 @@
+{
+  "project":"Project Name",
+  "template":"rules.xlsx",
+    
+  "Configuration":{
+      "Database":{
+          "database": "postgres",
+          "user": "operator",
+          "password": "*******",
+          "host": "localhost",
+          "port": "2284"
+		  }
+    }
+}

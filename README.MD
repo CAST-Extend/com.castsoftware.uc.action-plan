@@ -19,7 +19,7 @@ The script is designed to run on the command line using 5 parameters, --applicat
 
 ## General Configuration
 The general configuration section contains three parts, 
-* Name - Database host name
+* host - Database host name
 * port - Database port number 
 * application - application name
 * rules - the absolute location of the excel rules template
@@ -29,3 +29,19 @@ The general configuration section contains three parts,
 
 This code allows to identify the important violations of the targeted application. The final data are push in the viewer_action_plan table of the corresponding application.
    
+### Sample configuration
+
+{
+  "project":"Project Name",
+  "template":"The absolute location of the excel rules template",
+    
+  "Configuration":{
+      "Database":{
+          "database": "postgres",
+          "user": "operator",
+          "password": "CastAIP",
+          "host": "sha-dd-css2",
+          "port": "5432"
+		  }
+    }
+}
