@@ -3,32 +3,37 @@ import argparse
 import pandas as pd
 from config import Config
 from psycopg2 import connect
-from logger import Logger
-from logger import INFO
+from cast_common.logger import Logger,INFO
 from os.path import exists,abspath
 
+__author__ = ["Nevin Kaplan","Shirley Truffier-Blanc"]
+__email__ = ["n.kaplan@castsoftware.com,","s.truffier-blanc@castsoftware.com"]
+__copyright__ = "Copyright 2022, CAST Software"
 
 #class that allows the connexion to the database
 class ActionPlan():
 
     def __init__(self, config, log_level=INFO):
         self.logger = Logger(self.__class__.__name__, log_level)
-        self._open_database(config)
-        #TODO add rules file location to configuration file
-        self.file_name = abspath('./rules.xlsx')
+        if self._open_database(config):
+            #TODO add rules file location to configuration file
+            self.file_name = abspath('./rules.xlsx')
+            if not exists(self.file_name):
+                raise RuntimeError(f'{self.file_name} not found')
+        else:
+            raise RuntimeError("Database connection error")
 
-        if not exists(self.file_name):
-            raise RuntimeError(f'{self.file_name} not found')
 
-
-    def _open_database (self, config):
+    def _open_database (self, config) -> bool:
         try:
             conn = connect(database=config.database, user=config.user, password=config.password, host=config.host, port=config.port)
             self._connection = conn
             self._session = conn.cursor()
             self.logger.debug("Connected to the database")
+            return True
         except psycopg2.OperationalError as err : 
-            self.logger.error("Database connection error", err)
+            self.logger.error(f"Database connection error: {err}")
+            return False
 
     def close(self):
         self._session.close()
@@ -39,8 +44,7 @@ class ActionPlan():
 
         self.logger.info("Retriving existing action items")
         db_full_name=f'{app_name}_central'.replace("-","_")
-        
-        
+       
         query_path = f'set search_path={db_full_name}'
         query = "select distinct dmv.metric_id, dmv.snapshot_id, dmv.functional_date, dmr.object_id from dss_metric_values dmv, dss_metric_results dmr where dmv.metric_id = dmr.metric_id order by dmv.metric_id asc"
         self._session.execute(query_path,query)
@@ -63,12 +67,19 @@ class ActionPlan():
         
         self.logger.info("Adding action items")
         for p,s,t in zip(priorities,severity,tag):
+
             pd.set_option('mode.chained_assignment', None)
             fn = self.df[self.df['Final Priority'] == p]
-            fn['adj_metric_id'] = fn['ID']+1
+            fn['adj_metric_id'] = fn['metric_id']+1
             ids = fn['adj_metric_id'].values.tolist()
             ids2 = str(ids).replace('[','(').replace(']',')')
-            fn1 =fn.drop(columns=['Name', 'HREF', 'Business Criteria','Technical Criteria', 'Critical', 'Severity', 'TechnologyNames'])
+            fn1 =fn.drop(columns=['metric_name', 'href', 'Business Criteria','Technical Criteria', 'critical', 'severity', 'technologyNames'])
+            # pd.set_option('mode.chained_assignment', None)
+            # fn = self.df[self.df['Final Priority'] == p]
+            # fn['adj_metric_id'] = fn['ID']+1
+            # ids = fn['adj_metric_id'].values.tolist()
+            # ids2 = str(ids).replace('[','(').replace(']',')')
+            # fn1 =fn.drop(columns=['Name', 'HREF', 'Business Criteria','Technical Criteria', 'Critical', 'Severity', 'TechnologyNames'])
             fn1.rename(columns={'Final Priority':'priority'}, inplace =True)
             sql = "insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag)"+\
                 f"select distinct dmr.metric_id-1, object_id, (SELECT Max(functional_date) FROM dss_snapshots), timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}'"+\
@@ -82,9 +93,6 @@ class ActionPlan():
         self.fetch_data(app_name)
         self.export_data()
 
-        
-
-
 if __name__ == '__main__':
     print('\nCAST Action Plan Generation Tool')
     print('Copyright (c) 2022 CAST Software Inc.\n')
@@ -92,9 +100,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Assessment Action Plan Generation Tool')
     parser.add_argument('-c','--config', required=True, help='Configuration properties file')
+    parser.add_argument('-a','--appl_name', required=True, help='Generate action plan for application')
     args = parser.parse_args()
 
-    db = ActionPlan(Config(args.config))
-    
+    try:
+        db = ActionPlan(Config(args.config))
+        db.run(args.appl_name)
+    except RuntimeError as re:
+        print("Failed to generate Action Plan")        
+        
+            
     
  

@@ -1,12 +1,12 @@
 from logging import DEBUG, INFO, WARN, ERROR, info, warn, error
-from logger import Logger
+from cast_common.logger import Logger
 from json import load
 from argparse import ArgumentParser
 from json import JSONDecodeError
 
-__author__ = "DD Assessment Team"
+__author__ = ["Nevin Kaplan","Shirley Truffier-Blanc"]
+__email__ = ["n.kaplan@castsoftware.com,","s.truffier-blanc@castsoftware.com"]
 __copyright__ = "Copyright 2022, CAST Software"
-__email__ = "n.kaplan@castsoftware.com"
 
 class Config(): 
     def __init__(self, config):
