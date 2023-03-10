@@ -15,7 +15,7 @@ The script is used to to automate the sorting for the Action Plan violations on 
 ## Usage
 The script is designed to run on the command line using 5 parameters, --application, --rules, --output, --host and --port. Used to identify the application, the excel rules file path and the output excel application path.
 
-    py .\main.py -a <application name> -r <rules excel path> -o <output excel path> -n <database host name> -p <database port number>
+    python -m cast_action_plan.main -a <application name> -r <rules excel path> -o <output excel path> -n <database host name> -p <database port number>
 
 ## General Configuration
 The general configuration section contains three parts, 
