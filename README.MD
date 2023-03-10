@@ -38,10 +38,10 @@ This code allows to identify the important violations of the targeted applicatio
   "Configuration":{
       "Database":{
           "database": "postgres",
-          "user": "operator",
-          "password": "CastAIP",
-          "host": "sha-dd-css2",
-          "port": "5432"
+          "user": "*****",
+          "password": "****",
+          "host": "<host name>",
+          "port": "####"
 		  }
     }
 }
