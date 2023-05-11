@@ -16,13 +16,13 @@ The script is used to to automate the sorting for the Action Plan violations on 
 The script is designed to run on the command line using 5 parameters, --application, --rules, --output, --host and --port. Used to identify the application, the excel rules file path and the output excel application path.
 
 * Create a virtual env 
-	Python -m venv .venv
+```Python -m venv .venv```
 * Activate the virtual environment
-	.\.venv\scripts\activate
+```.\.venv\scripts\activate```
 * Install
-	pip install com.castsoftware.uc.action-plan
+```pip install com.castsoftware.uc.action-plan```
 * Use the commande line to launch the automated action plan
-	python -m cast_action_plan.main -a <application name> -c <configuration file>
+```python -m cast_action_plan.main -a <application name> -c <configuration file>```
 
 ## General Configuration
 The general configuration section contains three parts, 
