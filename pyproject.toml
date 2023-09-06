@@ -1,5 +1,7 @@
 [project]
-description="Generate an action plan for CAST Software rule violations",
+name='com.castsoftware.uc.action-plan'
+description="Generate an action plan for CAST Software rule violations"
+version='1.0.0'
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

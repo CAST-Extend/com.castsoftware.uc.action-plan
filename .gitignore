@@ -1,0 +1,5 @@
+.venv/**
+build/**
+pip_final.bat
+*.save
+com.castsoftware.uc.action_plan.egg-info/**
