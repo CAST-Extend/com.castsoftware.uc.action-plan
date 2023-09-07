@@ -1,18 +1,35 @@
-@@echo off
+@echo off
 
-set application_name=%1
-set config=%2
+call "./.venv/Scripts/activate.bat"
 
-IF NOT EXIST %config% (
-  Echo Config file does not exist 
-  exit /b 1
+:: Search for config.json in the current directory
+for /r %%i in (config.json) do (
+    set "config=%%i"
+    goto :found
 )
 
-call .\.venv\scripts\activate
+:found
+:: Check if config.json was found
+if "%config%"=="" (
+    echo Config file "config.json" was not found in the current directory or its subdirectories.
+    pause
+    exit /b
+)
 
-python -m cast_action_plan.main -a %application_name% -c %config% 
+:: Promot for application name
+set /p "application_name=Enter application name: "
 
-exit /b
+echo Application name: %application_name%
+echo .
+echo .
+echo .
 
-:error
+python -m cast_action_plan.main -a %application_name% -c %config%
 
+echo the end of the script
+echo .
+echo .
+echo .
+pause
+
+:: End of the script
