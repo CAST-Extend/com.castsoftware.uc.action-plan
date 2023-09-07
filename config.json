@@ -6,9 +6,9 @@
       "Database":{
           "database": "postgres",
           "user": "operator",
-          "password": "*******",
-          "host": "localhost",
-          "port": "2284"
+          "password": "CastAIP",
+          "host": "arch-ps-6",
+          "port": "5432"
 		  }
     }
 }

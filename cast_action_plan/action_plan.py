@@ -68,9 +68,9 @@ class ActionPlan():
         self.df = pd.read_excel(self.file_name)
         self.logger.debug("Dataframe", self.df)
 
-        priorities = ['Fix Now', 'Near Term', 'Mid Term', 'Long Term'] 
-        severity = [0,1,2,3]
-        tag = ['Extreme', 'High', 'Moderate', 'Low']
+        priorities = ['Fix Now', 'Near Term', 'Mid Term', 'Long Term', 'Tobereviewed'] 
+        severity = [0,1,2,3,4]
+        tag = ['Extreme', 'High', 'Moderate', 'Low', 'Tobereviewed']
         
         self.logger.info("Adding new action items")
         for p,s,t in zip(priorities,severity,tag):
@@ -85,8 +85,12 @@ class ActionPlan():
             sql = "insert into viewer_action_plans (metric_id, object_id, first_snapshot_date,last_snapshot_date,user_name,sel_date,priority,action_def,tag)"+\
                 f"select distinct dmr.metric_id-1, object_id, (SELECT Max(functional_date) FROM dss_snapshots), timestamp '2100-01-01 00:00:00','admin', now(), {s}, '{p}', '{t}'"+\
                 f"from dss_snapshots dmv, dss_metric_results dmr where dmr.snapshot_id = (select max(snapshot_id) from dss_snapshots) and metric_id in {ids2}"
-           
+                
+            
+            sql_1 = "SELECT action_def FROM viewer_action_plans WHERE action_def='Tobereviewed' ;"
             self._session.execute(sql)
+            self._session.execute(sql_1)
+
             self._connection.commit()
         self.logger.info("Done")
 
