@@ -1,4 +1,4 @@
-# Action Plan Generation Tool
+# Action Plan Generation Tool.
 
 The script is used to to automate the sorting for the Action Plan violations on the database.   
 
